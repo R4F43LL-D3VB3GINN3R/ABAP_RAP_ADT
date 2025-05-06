@@ -59,7 +59,7 @@ CLASS zcl_produtos IMPLEMENTATION.
         "se não houver dados na base de dados
         IF gt_produtos IS INITIAL.
           gs_result-rc       = 1.
-          gs_result-mensagem = | Não há dados de Categorias disponíveis |.
+          gs_result-mensagem = | Não há dados de Produtos disponíveis |.
           RETURN.
         ENDIF.
 
