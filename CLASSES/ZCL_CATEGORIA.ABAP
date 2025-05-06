@@ -76,7 +76,6 @@ CLASS zcl_categoria IMPLEMENTATION.
           gs_result-mensagem = | OK |.
         ENDIF.
 
-
         "envia os dados de categoria
         lt_categorias = gt_categorias.
         ls_result     = gs_result.
