@@ -1,4 +1,4 @@
-CLASS zcl_categoria DEFINITION
+CLASS zcl_categoria DEFINITION 
   PUBLIC
   FINAL
   CREATE PUBLIC .
