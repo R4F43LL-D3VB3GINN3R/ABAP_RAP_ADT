@@ -18,32 +18,43 @@ CLASS zcl_produto DEFINITION
     DATA gs_produto TYPE zst_produto.
     DATA gs_result TYPE zst_result.
     DATA gx_error TYPE REF TO cx_root.
+    DATA go_produtos TYPE REF TO zcl_produtos.
 ENDCLASS.
 
 CLASS zcl_produto IMPLEMENTATION.
 
   METHOD constructor.
-    
+
     "recebe o id como parametro
     gv_id_produto = id_produto.
-    
+
+    "inicia instância da classe de produtos
+    go_produtos = NEW zcl_produtos(  ).
+
     "consulta por produto
     get_data(  ).
 
   ENDMETHOD.
 
   METHOD get_data.
-    
-    "consulta por id do produto
-    SELECT SINGLE *
-      FROM zrla_produto
-      WHERE id_produto EQ @gv_id_produto
-      INTO CORRESPONDING FIELDS OF @gs_produto.
+
+    "recebe uma tabela interna de produtos
+    go_produtos->get_produtos(
+      IMPORTING
+        lt_produtos = DATA(lt_produtos)
+        ls_result   = gs_result
+    ).
+
+    "procura o produto na tabela interna por id
+    READ TABLE lt_produtos INTO DATA(ls_produto) WITH KEY id_produto = gv_id_produto.
+    IF sy-subrc EQ 0.
+      gs_produto = ls_produto.
+    ENDIF.
 
   ENDMETHOD.
 
   METHOD get_produto.
-    
+
     "verifica se houveram dados retornados
     IF gs_produto IS INITIAL.
       gs_result-rc       = 1.
