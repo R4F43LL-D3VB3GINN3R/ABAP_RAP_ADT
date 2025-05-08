@@ -38,18 +38,27 @@ CLASS zcl_produto IMPLEMENTATION.
 
   METHOD get_data.
 
-    "recebe uma tabela interna de produtos
-    go_produtos->get_produtos(
-      IMPORTING
-        lt_produtos = DATA(lt_produtos)
-        ls_result   = gs_result
-    ).
+    TRY.
+        "recebe uma tabela interna de produtos
+        go_produtos->get_produtos(
+          IMPORTING
+            lt_produtos = DATA(lt_produtos)
+            ls_result   = gs_result
+        ).
 
-    "procura o produto na tabela interna por id
-    READ TABLE lt_produtos INTO DATA(ls_produto) WITH KEY id_produto = gv_id_produto.
-    IF sy-subrc EQ 0.
-      gs_produto = ls_produto.
-    ENDIF.
+        FREE go_produtos.
+
+        "procura o produto na tabela interna por id
+        READ TABLE lt_produtos INTO DATA(ls_produto) WITH KEY id_produto = gv_id_produto.
+        IF sy-subrc EQ 0.
+          gs_produto = ls_produto.
+        ENDIF.
+
+      CATCH cx_root INTO gx_error.
+
+        gs_result-rc       = 1.
+        gs_result-mensagem = |Erro: { gx_error->get_text( ) }|.
+    ENDTRY.
 
   ENDMETHOD.
 
@@ -59,10 +68,12 @@ CLASS zcl_produto IMPLEMENTATION.
     IF gs_produto IS INITIAL.
       gs_result-rc       = 1.
       gs_result-mensagem = | Não há produto disponível para o número { gv_id_produto }|.
+      ls_result          = gs_result.
       RETURN.
     ELSE.
       gs_result-rc = 0.
       ls_produto   = gs_produto.
+      ls_result    = gs_result.
     ENDIF.
 
   ENDMETHOD.
