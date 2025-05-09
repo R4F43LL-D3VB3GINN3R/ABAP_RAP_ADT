@@ -1,5 +1,5 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
-@EndUserText.label: 'CDS para Produtos'
+@EndUserText.label: 'CDS Produtos'
 @Metadata.ignorePropagatedAnnotations: true
 define root view entity ZDD_PRODUTO 
   as select from zrla_produto
@@ -7,28 +7,28 @@ define root view entity ZDD_PRODUTO
     on zrla_produto.id_categoria = _Categoria.id_categoria
 {
     @EndUserText.label: 'ID Produto'
-    key id_produto,
+    key id_produto as IdProduto,
     
     @EndUserText.label: 'ID Categoria'
-    key id_categoria,
+    key id_categoria as IdCategoria,
     
-    @EndUserText.label: 'Descrição do Produto'
-    descricao,
+    @EndUserText.label: 'Descrição'
+    descricao as Descricao,
 
     @EndUserText.label: 'Preço Unitário'
-    preco_unitario,
+    preco_unitario as PrecoUnitario,
 
     @EndUserText.label: 'Estoque'
-    estoque,
+    estoque as Estoque,
 
     @EndUserText.label: 'Data de Entrada'
-    data_entrada,
+    data_entrada as DataEntrada,
 
     @EndUserText.label: 'Data de Alteração'
-    data_alteracao,
+    data_alteracao as DataAlteracao,
 
-    @EndUserText.label: 'Usuário'
-    username,
+    @EndUserText.label: 'User'
+    username as Username,
 
     _Categoria // associação pública
 }
