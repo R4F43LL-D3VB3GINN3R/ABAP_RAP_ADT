@@ -1,4 +1,4 @@
-CLASS zcl_categoria DEFINITION 
+CLASS zcl_categoria DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -54,7 +54,7 @@ CLASS zcl_categoria IMPLEMENTATION.
 
       CATCH cx_root INTO gx_error.
 
-        gs_result-rc = 1.
+        gs_result-rc       = 1.
         gs_result-mensagem = |Erro: { gx_error->get_text( ) }|.
     ENDTRY.
 
@@ -65,14 +65,15 @@ CLASS zcl_categoria IMPLEMENTATION.
     TRY.
         "se não houver dados na base de dados
         IF gt_categorias IS INITIAL.
-          gs_result-rc = 1.
+          gs_result-rc       = 1.
           gs_result-mensagem = | Não há dados de Categorias disponíveis |.
+          ls_result          = gs_result.
           RETURN.
         ENDIF.
 
         "se as operações correram sem problemas
         IF gs_result-rc NE 1.
-          gs_result-rc = 0.
+          gs_result-rc       = 0.
           gs_result-mensagem = | OK |.
         ENDIF.
 
@@ -82,8 +83,9 @@ CLASS zcl_categoria IMPLEMENTATION.
 
       CATCH cx_root INTO gx_error.
 
-        gs_result-rc = 1.
+        gs_result-rc       = 1.
         gs_result-mensagem = |Erro: { gx_error->get_text( ) }|.
+        ls_result          = gs_result.
     ENDTRY.
 
   ENDMETHOD.
@@ -118,8 +120,9 @@ CLASS zcl_categoria IMPLEMENTATION.
 
         "verifica se a tabela interna está populada
         IF gt_mock_categorias IS INITIAL.
-          gs_result-rc = 1.
+          gs_result-rc       = 1.
           gs_result-mensagem = | Não há mockdata disponível |.
+          ls_result          = gs_result.
           RETURN.
         ENDIF.
 
@@ -131,14 +134,15 @@ CLASS zcl_categoria IMPLEMENTATION.
 
         "se as operações correram sem problemas
         IF gs_result-rc NE 1.
-          gs_result-rc = 0.
+          gs_result-rc       = 0.
           gs_result-mensagem = | Mockdata de Categorias inserido com sucesso |.
         ENDIF.
 
       CATCH cx_root INTO gx_error.
 
-        gs_result-rc = 1.
+        gs_result-rc       = 1.
         gs_result-mensagem = |Erro: { gx_error->get_text( ) }|.
+        ls_result          = gs_result.
     ENDTRY.
 
   ENDMETHOD.
