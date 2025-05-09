@@ -55,6 +55,7 @@ CLASS zcl_produto IMPLEMENTATION.
 *    MODIFY ENTITIES OF zdd_produto
 *        ENTITY Produto
 
+    out->write( | | ).
     out->write( |Código de Operação: { gs_result-rc }| ).
     out->write( |Mensagem: { gs_result-mensagem }| ).
 
@@ -109,7 +110,7 @@ CLASS zcl_produto IMPLEMENTATION.
         ).
 
         "verifica se há dados na base de dados
-        IF gt_produtos IS NOT INITIAL.
+        IF gt_produtos IS INITIAL.
           gs_result-rc       = 1.
           gs_result-mensagem = | Não há dados disponíveis para Produtos |.
           ls_result = gs_result.
