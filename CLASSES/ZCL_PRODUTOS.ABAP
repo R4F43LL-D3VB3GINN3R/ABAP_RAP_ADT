@@ -17,12 +17,19 @@ CLASS zcl_produtos DEFINITION
   PRIVATE SECTION.
     METHODS get_data.
     METHODS get_mock.
+
+    DATA: gt_produtos      TYPE ztt_produto,
+          gt_mock_produtos TYPE TABLE OF zrla_produto,
+          gt_produtos_cds  TYPE TABLE FOR CREATE zdd_produto.
+
+    DATA: gs_produto     TYPE zst_produto,
+          gs_produto_cds LIKE LINE OF gt_produtos_cds.
+
     DATA gv_id_produto TYPE zrla_produto-id_produto.
-    DATA gs_produto TYPE zst_produto.
-    DATA gt_produtos TYPE ztt_produto.
-    DATA gt_mock_produtos TYPE TABLE OF zrla_produto.
+
     DATA gs_result TYPE zst_result.
     DATA gx_error TYPE REF TO cx_root.
+
 ENDCLASS.
 
 CLASS zcl_produtos IMPLEMENTATION.
