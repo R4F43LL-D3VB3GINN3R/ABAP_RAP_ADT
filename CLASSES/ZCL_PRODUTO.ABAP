@@ -31,7 +31,7 @@ CLASS zcl_produto DEFINITION
           gt_produtos_cds TYPE TABLE FOR CREATE zdd_produto.
 
     DATA: gs_produto      TYPE zst_produto,
-          gs_produto_cds  LIKE LINE OF gt_produtos_cds,
+          gs_produto_cds  LIKE LINE OF zdd_produto,
           gs_mock_produto TYPE zst_produto.
 
     DATA: gv_id_produto TYPE zrla_produto-id_produto,
@@ -47,6 +47,7 @@ CLASS zcl_produto IMPLEMENTATION.
   METHOD if_oo_adt_classrun~main.
 
     "gera novo produto
+    "----------------------------------------------------------
     CLEAR gs_mock_produto.
     gs_mock_produto = generate_mock_produto( ).
     out->write( |Produto Gerado --| ).
@@ -60,36 +61,27 @@ CLASS zcl_produto IMPLEMENTATION.
     out->write( |Username: { gs_mock_produto-username }| ).
     out->write( | | ).
 
-    "preencher a cds com dados
+    "preencher a linha da cds com dados
     "----------------------------------------------------------
     out->write( | | ).
     out->write( |Produtos da CDS --| ).
-    LOOP AT gt_produtos INTO gs_produto.
-      gs_produto_cds-IdProduto     = gs_produto-id_produto.
-      gs_produto_cds-IdCategoria   = gs_produto-id_categoria.
-      gs_produto_cds-Descricao     = gs_produto-descricao.
-      gs_produto_cds-Estoque       = gs_produto-estoque.
-      gs_produto_cds-PrecoUnitario = gs_produto-preco_unitario.
-      gs_produto_cds-DataEntrada   = gs_produto-data_entrada.
-      gs_produto_cds-DataAlteracao = gs_produto-data_alteracao.
-      gs_produto_cds-Username      = gs_produto-username.
-      out->write( |Id Produto: { gs_produto_cds-IdProduto }| ).
-      out->write( |Id Categoria: { gs_produto_cds-IdCategoria }| ).
-      out->write( |Descrição: { gs_produto_cds-Descricao }| ).
-      out->write( |Estoque: { gs_produto_cds-Estoque }| ).
-      out->write( |Preço Unitário: { gs_produto_cds-PrecoUnitario }| ).
-      out->write( |Data Entrada: { gs_produto_cds-DataEntrada }| ).
-      out->write( |Data Alteração: { gs_produto_cds-DataAlteracao }| ).
-      out->write( |Username: { gs_produto_cds-Username }| ).
-      out->write( |------------------------------------------------ | ).
-    ENDLOOP.
-
-*    APPEND gs_produto_cds TO gt_produtos_cds.
-*    out->write( |Id Produto: { gs_produto_cds-IdProduto }| ).
+    gs_produto_cds-IdProduto     = gs_produto-id_produto.
+    gs_produto_cds-IdCategoria   = gs_produto-id_categoria.
+    gs_produto_cds-Descricao     = gs_produto-descricao.
+    gs_produto_cds-Estoque       = gs_produto-estoque.
+    gs_produto_cds-PrecoUnitario = gs_produto-preco_unitario.
+    gs_produto_cds-DataEntrada   = gs_produto-data_entrada.
+    gs_produto_cds-DataAlteracao = gs_produto-data_alteracao.
+    gs_produto_cds-Username      = gs_produto-username.
+    APPEND gs_produto_cds TO gt_produtos_cds.
     "----------------------------------------------------------
 
-*    MODIFY ENTITIES OF zdd_produto
-*        ENTITY Produto
+    MODIFY ENTITIES OF zdd_produto
+        ENTITY Produto
+        CREATE FROM gt_produtos_cds
+        FAILED DATA(ls_produto_failed)
+        REPORTED DATA(ls_produto_reported)
+        MAPPED DATA(ls_produto_mapped).
 
     out->write( | | ).
     out->write( |Código de Operação: { gs_result-rc }| ).
