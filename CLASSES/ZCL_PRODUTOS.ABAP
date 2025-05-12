@@ -13,6 +13,7 @@ CLASS zcl_produtos DEFINITION
     METHODS set_mock_produtos
       EXPORTING
         ls_result TYPE zst_result.
+    METHODS delete_dummies.
   PROTECTED SECTION.
   PRIVATE SECTION.
     METHODS get_data.
@@ -166,6 +167,12 @@ CLASS zcl_produtos IMPLEMENTATION.
         gs_result-mensagem = |Erro: { gx_error->get_text( ) }|.
         ls_result          = gs_result.
     ENDTRY.
+
+  ENDMETHOD.
+
+  METHOD delete_dummies.
+
+    DELETE FROM zrla_produto WHERE descricao EQ 'Dummy'.
 
   ENDMETHOD.
 
