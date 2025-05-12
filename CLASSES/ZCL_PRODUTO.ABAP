@@ -1,7 +1,7 @@
 CLASS zcl_produto DEFINITION
   PUBLIC
   FINAL
-  CREATE PUBLIC  .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES if_oo_adt_classrun.
@@ -31,7 +31,7 @@ CLASS zcl_produto DEFINITION
           gt_produtos_cds TYPE TABLE FOR CREATE zdd_produto.
 
     DATA: gs_produto      TYPE zst_produto,
-          gs_produto_cds  LIKE LINE OF zdd_produto,
+          gs_produto_cds  LIKE LINE OF gt_produtos_cds,
           gs_mock_produto TYPE zst_produto.
 
     DATA: gv_id_produto TYPE zrla_produto-id_produto,
@@ -46,11 +46,12 @@ CLASS zcl_produto IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-    "gera novo produto
+    "----------------------------------------------------------
+    "                    gera novo produto
     "----------------------------------------------------------
     CLEAR gs_mock_produto.
     gs_mock_produto = generate_mock_produto( ).
-    out->write( |Produto Gerado --| ).
+    out->write( | -- Produto Gerado -- | ).
     out->write( |Id Produto: { gs_mock_produto-id_produto }| ).
     out->write( |Id Categoria: { gs_mock_produto-id_categoria }| ).
     out->write( |Descrição: { gs_mock_produto-descricao }| ).
@@ -61,10 +62,10 @@ CLASS zcl_produto IMPLEMENTATION.
     out->write( |Username: { gs_mock_produto-username }| ).
     out->write( | | ).
 
-    "preencher a linha da cds com dados
+    "----------------------------------------------------------
+    "           preencher a linha da cds com dados
     "----------------------------------------------------------
     out->write( | | ).
-    out->write( |Produtos da CDS --| ).
     gs_produto_cds-IdProduto     = gs_produto-id_produto.
     gs_produto_cds-IdCategoria   = gs_produto-id_categoria.
     gs_produto_cds-Descricao     = gs_produto-descricao.
@@ -73,15 +74,32 @@ CLASS zcl_produto IMPLEMENTATION.
     gs_produto_cds-DataEntrada   = gs_produto-data_entrada.
     gs_produto_cds-DataAlteracao = gs_produto-data_alteracao.
     gs_produto_cds-Username      = gs_produto-username.
+
+    gs_produto_cds-%cid                   = gs_mock_produto-id_produto.
+    gs_produto_cds-%control-IdProduto     = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-IdCategoria   = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-Descricao     = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-Estoque       = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-PrecoUnitario = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-DataEntrada   = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-DataAlteracao = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-Username      = if_abap_behv=>mk-on.
     APPEND gs_produto_cds TO gt_produtos_cds.
     "----------------------------------------------------------
 
     MODIFY ENTITIES OF zdd_produto
-        ENTITY Produto
-        CREATE FROM gt_produtos_cds
-        FAILED DATA(ls_produto_failed)
-        REPORTED DATA(ls_produto_reported)
-        MAPPED DATA(ls_produto_mapped).
+      ENTITY Produto
+      CREATE FROM gt_produtos_cds
+      FAILED DATA(ls_produto_failed)
+      REPORTED DATA(ls_produto_reported)
+      MAPPED DATA(ls_produto_mapped).
+
+    "verifica retorno de erro
+    IF ls_produto_failed IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
 
     out->write( | | ).
     out->write( |Código de Operação: { gs_result-rc }| ).
@@ -108,14 +126,40 @@ CLASS zcl_produto IMPLEMENTATION.
     "instancia a classe de categorias
     go_categorias = NEW zcl_categoria(  ).
 
-    gs_produto-id_produto     = gv_next_key.
-    gs_produto-id_categoria   = go_categorias->generate_key( ).
-    gs_produto-descricao      = 'Dummy'.
-    gs_produto-estoque        = 999.
-    gs_produto-preco_unitario = '1'.
-    gs_produto-data_entrada   = cl_abap_context_info=>get_system_date( ).
-    gs_produto-data_alteracao = cl_abap_context_info=>get_system_date( ).
-    gs_produto-username       = cl_abap_context_info=>get_user_technical_name( ).
+    gs_produto_cds-IdProduto     = gv_next_key.
+    gs_produto_cds-IdCategoria   = go_categorias->generate_key( ).
+    gs_produto_cds-Descricao     = 'Dummy'.
+    gs_produto_cds-Estoque       = 999.
+    gs_produto_cds-PrecoUnitario = '1'.
+    gs_produto_cds-DataEntrada   = cl_abap_context_info=>get_system_date( ).
+    gs_produto_cds-DataAlteracao = cl_abap_context_info=>get_system_date( ).
+    gs_produto_cds-Username      = cl_abap_context_info=>get_user_technical_name( ).
+
+    gs_produto_cds-%cid                   = gs_mock_produto-id_produto.
+    gs_produto_cds-%control-IdProduto     = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-IdCategoria   = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-Descricao     = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-Estoque       = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-PrecoUnitario = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-DataEntrada   = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-DataAlteracao = if_abap_behv=>mk-on.
+    gs_produto_cds-%control-Username      = if_abap_behv=>mk-on.
+    APPEND gs_produto_cds TO gt_produtos_cds.
+    "----------------------------------------------------------
+
+    MODIFY ENTITIES OF zdd_produto
+      ENTITY Produto
+      CREATE FROM gt_produtos_cds
+      FAILED DATA(ls_produto_failed)
+      REPORTED DATA(ls_produto_reported)
+      MAPPED DATA(ls_produto_mapped).
+
+    "verifica retorno de erro
+    IF ls_produto_failed IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
 
     "atribui o novo produto
     ls_produto = gs_produto.
