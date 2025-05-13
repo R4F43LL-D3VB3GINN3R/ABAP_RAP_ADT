@@ -1,4 +1,4 @@
-CLASS zcl_categoria DEFINITION
+ CLASS zcl_categoria DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -20,6 +20,7 @@ CLASS zcl_categoria DEFINITION
   PRIVATE SECTION.
     METHODS get_data .
     METHODS get_mock .
+
     DATA: gv_id_categoria TYPE zrla_categoria-id_categoria.
     DATA: gs_categoria TYPE zst_categoria.
     DATA: gt_categorias TYPE ztt_categoria.
