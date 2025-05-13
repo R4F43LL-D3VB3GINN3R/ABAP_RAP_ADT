@@ -55,9 +55,13 @@ CLASS zcl_produtos IMPLEMENTATION.
 
     CLEAR gt_produtos.
 
+    delete_dummies( ).
+
     SELECT *
      FROM zrla_produto
      INTO CORRESPONDING FIELDS OF TABLE @gt_produtos.
+
+    SORT gt_produtos BY id_produto ASCENDING.
 
   ENDMETHOD.
 
@@ -77,7 +81,7 @@ CLASS zcl_produtos IMPLEMENTATION.
           gs_result-mensagem = | OK |.
         ENDIF.
 
-        lt_produtos = gt_produtos.
+        lt_produtos   = gt_produtos.
         ls_result     = gs_result.
 
       CATCH cx_root INTO gx_error.
@@ -172,6 +176,7 @@ CLASS zcl_produtos IMPLEMENTATION.
 
   METHOD delete_dummies.
 
+    DELETE FROM zrla_produto WHERE id_produto IS INITIAL.
     DELETE FROM zrla_produto WHERE descricao EQ 'Dummy'.
 
   ENDMETHOD.
