@@ -15,8 +15,12 @@ CLASS zcl_produto DEFINITION
     METHODS generate_mock_produto
       RETURNING
         VALUE(ls_produto) TYPE zst_produto.
-    METHODS insert_row_cds.
-    METHODS read_cds.
+    METHODS create_cds.
+    METHODS read_cds
+      IMPORTING
+        id_produto TYPE zrla_produto-id_produto
+      EXPORTING
+        ls_result  TYPE zst_result.
   PROTECTED SECTION.
   PRIVATE SECTION.
     METHODS get_data.
@@ -62,7 +66,13 @@ CLASS zcl_produto IMPLEMENTATION.
 *    out->write( |Username: { gs_mock_produto-username }| ).
 *    out->write( | | ).
 
-    read_cds( ).
+    "----------------------------------------------------------
+*    "                lê um dos produtos da CDS
+*    "----------------------------------------------------------
+*     read_cds(
+*      id_produto = '0000000001'
+*      ls_result  = gs_result
+*     ).
 
     out->write( | | ).
     out->write( |Código de Operação: { gs_result-rc }| ).
@@ -110,12 +120,13 @@ CLASS zcl_produto IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD insert_row_cds.
+  METHOD create_cds.
 
     CLEAR: gs_mock_produto,
            gs_produto_cds,
            gt_produtos_cds.
 
+    "cria um produto default
     gs_mock_produto = generate_mock_produto( ).
 
     "estrutura da cds recebe o novo produto
@@ -159,12 +170,13 @@ CLASS zcl_produto IMPLEMENTATION.
 
     READ ENTITIES OF zdd_produto
      ENTITY Produto
-     ALL FIELDS WITH VALUE #( ( %key-IdProduto   = '0000000001'
-                                %key-IdCategoria = '0000000001' ) )
+     ALL FIELDS WITH VALUE #( ( %key-IdProduto = id_produto ) )
      RESULT DATA(lt_produto_cds).
 
-    READ TABLE lt_produto_cds INTO DATA(ls_produto_cds) INDEX 1.
-
+    IF lt_produto_cds IS NOT INITIAL.
+      ls_result-rc = 0.
+      ls_result-mensagem = |Ok|.
+    ENDIF.
 
   ENDMETHOD.
 
@@ -212,8 +224,8 @@ CLASS zcl_produto IMPLEMENTATION.
         ENDIF.
 
         "output
-        id_produto  = gv_next_key.
-        ls_result   = gs_result.
+        id_produto = gv_next_key.
+        ls_result  = gs_result.
 
       CATCH cx_root INTO gx_error.
 
