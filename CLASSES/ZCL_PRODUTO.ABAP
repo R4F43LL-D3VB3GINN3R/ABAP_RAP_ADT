@@ -16,6 +16,7 @@ CLASS zcl_produto DEFINITION
       RETURNING
         VALUE(ls_produto) TYPE zst_produto.
     METHODS insert_row_cds.
+    METHODS read_cds.
   PROTECTED SECTION.
   PRIVATE SECTION.
     METHODS get_data.
@@ -47,19 +48,21 @@ CLASS zcl_produto IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-    "----------------------------------------------------------
-    "          insere um produto na cds / base de dados
-    "----------------------------------------------------------
-    insert_row_cds( ).
-    out->write( |Id Produto: { gs_mock_produto-id_produto }| ).
-    out->write( |Id Categoria: { gs_mock_produto-id_categoria }| ).
-    out->write( |Descrição: { gs_mock_produto-descricao }| ).
-    out->write( |Estoque: { gs_mock_produto-estoque }| ).
-    out->write( |Preço Unitário: { gs_mock_produto-preco_unitario }| ).
-    out->write( |Data Entrada: { gs_mock_produto-data_entrada }| ).
-    out->write( |Data Alteração: { gs_mock_produto-data_alteracao }| ).
-    out->write( |Username: { gs_mock_produto-username }| ).
-    out->write( | | ).
+*    "----------------------------------------------------------
+*    "          insere um produto na cds / base de dados
+*    "----------------------------------------------------------
+*    insert_row_cds( ).
+*    out->write( |Id Produto: { gs_mock_produto-id_produto }| ).
+*    out->write( |Id Categoria: { gs_mock_produto-id_categoria }| ).
+*    out->write( |Descrição: { gs_mock_produto-descricao }| ).
+*    out->write( |Estoque: { gs_mock_produto-estoque }| ).
+*    out->write( |Preço Unitário: { gs_mock_produto-preco_unitario }| ).
+*    out->write( |Data Entrada: { gs_mock_produto-data_entrada }| ).
+*    out->write( |Data Alteração: { gs_mock_produto-data_alteracao }| ).
+*    out->write( |Username: { gs_mock_produto-username }| ).
+*    out->write( | | ).
+
+    read_cds( ).
 
     out->write( | | ).
     out->write( |Código de Operação: { gs_result-rc }| ).
@@ -69,7 +72,8 @@ CLASS zcl_produto IMPLEMENTATION.
 
   METHOD generate_mock_produto .
 
-    CLEAR: gs_produto.
+    CLEAR gs_produto.
+    FREE go_categorias.
 
     TRY.
         "recebe chave auto incrementada
@@ -81,6 +85,7 @@ CLASS zcl_produto IMPLEMENTATION.
       CATCH cx_root INTO gx_error.
         gs_result-rc       = 1.
         gs_result-mensagem = | { gx_error->get_text( ) }|.
+        RETURN.
     ENDTRY.
 
     "instancia a classe de categorias
@@ -94,6 +99,11 @@ CLASS zcl_produto IMPLEMENTATION.
     gs_produto-data_entrada   = cl_abap_context_info=>get_system_date( ).
     gs_produto-data_alteracao = cl_abap_context_info=>get_system_date( ).
     gs_produto-username       = cl_abap_context_info=>get_user_technical_name( ).
+
+    IF gs_result-rc NE 1.
+      gs_result-rc       = 0.
+      gs_result-mensagem = |Ok|.
+    ENDIF.
 
     "atribui o novo produto
     ls_produto = gs_produto.
@@ -145,6 +155,19 @@ CLASS zcl_produto IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD read_cds.
+
+    READ ENTITIES OF zdd_produto
+     ENTITY Produto
+     ALL FIELDS WITH VALUE #( ( %key-IdProduto   = '0000000001'
+                                %key-IdCategoria = '0000000001' ) )
+     RESULT DATA(lt_produto_cds).
+
+    READ TABLE lt_produto_cds INTO DATA(ls_produto_cds) INDEX 1.
+
+
+  ENDMETHOD.
+
   METHOD get_next_key.
 
     CLEAR: gt_produtos,
@@ -173,12 +196,22 @@ CLASS zcl_produto IMPLEMENTATION.
 
         "procura a ultima chave da tabela
         READ TABLE gt_produtos INTO gs_produto INDEX lv_last_index.
+
+        "incrementa valor da chave
         IF sy-subrc EQ 0.
           gv_next_key = gs_produto-id_produto.
           gv_next_key = gv_next_key + 1.
-          id_produto  = gv_next_key.
-          ls_result   = gs_result.
         ENDIF.
+
+        "ultima validacao
+        IF gs_result-rc NE 1.
+          gs_result-rc       = 0.
+          gs_result-mensagem = |OK|.
+        ENDIF.
+
+        "output
+        id_produto  = gv_next_key.
+        ls_result = gs_result.
 
       CATCH cx_root INTO gx_error.
 
