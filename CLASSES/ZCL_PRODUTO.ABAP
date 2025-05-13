@@ -175,6 +175,8 @@ CLASS zcl_produto IMPLEMENTATION.
            gv_next_key,
            gs_produto.
 
+    FREE: gx_error.
+
     TRY.
         "recebe tabela de produtos
         go_produtos->get_produtos(
@@ -211,13 +213,13 @@ CLASS zcl_produto IMPLEMENTATION.
 
         "output
         id_produto  = gv_next_key.
-        ls_result = gs_result.
+        ls_result   = gs_result.
 
       CATCH cx_root INTO gx_error.
 
         gs_result-rc       = 1.
         gs_result-mensagem = | { gx_error->get_text( ) } |.
-        ls_result = gs_result.
+        ls_result          = gs_result.
     ENDTRY.
 
   ENDMETHOD.
