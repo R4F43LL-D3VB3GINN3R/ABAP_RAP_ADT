@@ -16,6 +16,11 @@ CLASS zcl_produto DEFINITION
       RETURNING
         VALUE(ls_produto) TYPE zst_produto.
     METHODS create_cds.
+    METHODS update_cds
+      IMPORTING
+        id_produto TYPE zrla_produto-id_produto
+      EXPORTING
+        ls_result  TYPE zst_result.
     METHODS read_cds
       IMPORTING
         id_produto TYPE zrla_produto-id_produto
@@ -67,12 +72,24 @@ CLASS zcl_produto IMPLEMENTATION.
 *    out->write( | | ).
 
     "----------------------------------------------------------
-*    "                lê um dos produtos da CDS
-*    "----------------------------------------------------------
-*     read_cds(
-*      id_produto = '0000000001'
-*      ls_result  = gs_result
-*     ).
+    "                lê um dos produtos da CDS
+    "----------------------------------------------------------
+*    read_cds(
+*      EXPORTING
+*        id_produto = '0000000001'
+*      IMPORTING
+*        ls_result  = gs_result
+*    ).
+
+    "----------------------------------------------------------
+    "                atuakuiza um dos produtos da CDS
+    "----------------------------------------------------------
+    update_cds(
+      EXPORTING
+        id_produto = '0000000001'
+      IMPORTING
+        ls_result  = gs_result
+    ).
 
     out->write( | | ).
     out->write( |Código de Operação: { gs_result-rc }| ).
@@ -168,15 +185,59 @@ CLASS zcl_produto IMPLEMENTATION.
 
   METHOD read_cds.
 
-    READ ENTITIES OF zdd_produto
-     ENTITY Produto
-     ALL FIELDS WITH VALUE #( ( %key-IdProduto = id_produto ) )
-     RESULT DATA(lt_produto_cds).
+    TRY.
+        "realiza a leitura dos dados dos produtos
+        READ ENTITIES OF zdd_produto
+         ENTITY Produto
+         ALL FIELDS
+         WITH VALUE #( ( %key-IdProduto = id_produto
+                         %key-IdCategoria = '000000001' ) )
+         RESULT DATA(lt_produto_cds)
+         FAILED DATA(result_failed).
 
-    IF lt_produto_cds IS NOT INITIAL.
-      ls_result-rc = 0.
-      ls_result-mensagem = |Ok|.
-    ENDIF.
+      CATCH cx_root INTO gx_error.
+
+        "se não houverem dados retornados
+        IF lt_produto_cds IS NOT INITIAL.
+          ls_result-rc = 0.
+          ls_result-mensagem = |Ok|.
+        ELSE.
+          ls_result-rc = 1.
+          ls_result-mensagem = gx_error->get_text( ).
+        ENDIF.
+    ENDTRY.
+
+  ENDMETHOD.
+
+  METHOD update_cds.
+
+    TRY.
+        MODIFY ENTITIES OF zdd_produto
+        ENTITY Produto
+        UPDATE
+        SET FIELDS WITH VALUE #( (
+            %tky-IdProduto = id_produto
+            Descricao      = 'Dummy'
+         ) )
+        FAILED   DATA(ls_update_failed)
+        REPORTED DATA(ls_update_reported)
+        MAPPED   DATA(ls_update_mapped).
+
+        "verifica se nao houve erro no update
+        IF ls_update_failed IS INITIAL.
+          COMMIT ENTITIES.
+
+          ls_result-rc = 0.
+          ls_result-mensagem = 'Ok'.
+        ELSE.
+          ROLLBACK ENTITIES.
+        ENDIF.
+
+      CATCH cx_root INTO gx_error.
+
+        ls_result-rc = 1.
+        ls_result-mensagem = gx_error->get_text( ).
+    ENDTRY.
 
   ENDMETHOD.
 
