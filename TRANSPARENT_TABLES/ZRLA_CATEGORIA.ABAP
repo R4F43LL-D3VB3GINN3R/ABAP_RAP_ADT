@@ -1,4 +1,4 @@
-@EndUserText.label : 'Tabela para Categoria de Produtos'
+@EndUserText.label : 'Tabela para Categoria de Produtos' 
 @AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
 @AbapCatalog.tableCategory : #TRANSPARENT
 @AbapCatalog.deliveryClass : #A
